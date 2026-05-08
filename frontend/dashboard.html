@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!--
+  dashboard.html — Logged-in user's todo page
+
+  HOW IT WORKS:
+    - dashboard.js runs on load → calls guardAuth() to check login
+    - Fetches todos from backend → renders stats + todo cards
+    - Add form → addTodo() → POST /api/todos
+    - Filter buttons → setFilter() → re-fetch with ?status=...&priority=...
+    - "Done" button → markDone() → PUT /api/todos/:id { status: 'completed' }
+    - "Edit" button → openEditModal() fills and shows the modal
+    - "Delete" button → deleteTodo() → DELETE /api/todos/:id
+    - "Save" in modal → saveEdit() → PUT /api/todos/:id with all updated fields
+
+  JS FILES LOADED:
+    api.js       → all fetch() calls + helpers (guardAuth, showToast, etc.)
+    dashboard.js → all page logic (load, render, add, edit, delete, filter)
+
+  SECTIONS:
+    1. Navbar
+    2. Stats row (4 boxes)
+    3. Add todo form
+    4. Filter buttons
+    5. Todo list (div filled by JS)
+    6. Edit modal (hidden popup)
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo App – Dashboard</title>
+  <link rel="stylesheet" href="css/global.css" />
+</head>
+<body>
+
+  <!-- ── 1. NAVBAR ─────────────────────────────── -->
+  <nav>
+    <!-- JS fills in the logged-in user's name via id="welcome-msg" -->
+    <h2 id="welcome-msg">Dashboard</h2>
+    <!-- logout() is in api.js — clears localStorage and redirects to login.html -->
+    <button class="nav-btn-logout" onclick="logout()">Logout</button>
+  </nav>
+
+  <div class="container">
+
+    <!-- ── 2. STATS ROW ─────────────────────────────
+         4 boxes showing live counts.
+         JS fills the numbers using these id attributes.
+         e.g. document.getElementById('stat-total').textContent = 5
+    ──────────────────────────────────────────────── -->
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="num" id="stat-total">0</div>
+        <div class="label">Total</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="stat-pending">0</div>
+        <div class="label">Pending</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="stat-progress">0</div>
+        <div class="label">In Progress</div>
+      </div>
+      <div class="stat-box">
+        <div class="num" id="stat-done">0</div>
+        <div class="label">Completed</div>
+      </div>
+    </div>
+
+    <!-- ── 3. ADD TODO FORM ──────────────────────── -->
+    <div class="box">
+      <h3 class="section">+ Add New Todo</h3>
+
+      <!-- Title is required — validated in dashboard.js addTodo() -->
+      <input type="text" id="new-title" placeholder="What do you need to do? *" />
+
+      <!-- Description + Priority side by side (.form-row in CSS) -->
+      <div class="form-row">
+        <input type="text" id="new-desc" placeholder="Description (optional)" />
+        <select id="new-priority">
+          <option value="low">Low Priority</option>
+          <option value="medium" selected>Medium Priority</option>
+          <!-- "selected" = this option is chosen by default -->
+          <option value="high">High Priority</option>
+        </select>
+      </div>
+
+      <!-- addTodo() in dashboard.js handles this click -->
+      <button class="btn-blue" onclick="addTodo()">Add Todo</button>
+    </div>
+
+    <!-- ── 4. FILTER BUTTONS ─────────────────────────
+         Each button calls setFilter(type, value, this)
+         "this" = the button element itself (so JS can toggle its 'active' class)
+         Clicking same filter again → clears it (toggle behaviour)
+    ──────────────────────────────────────────────── -->
+    <div class="filters">
+      <span>Status:</span>
+      <!-- class="filter-status" lets JS find all status buttons at once -->
+      <button class="filter-btn filter-status" onclick="setFilter('status','pending',this)">Pending</button>
+      <button class="filter-btn filter-status" onclick="setFilter('status','in-progress',this)">In Progress</button>
+      <button class="filter-btn filter-status" onclick="setFilter('status','completed',this)">Completed</button>
+
+      &nbsp;&nbsp;
+
+      <span>Priority:</span>
+      <!-- class="filter-priority" lets JS find all priority buttons at once -->
+      <button class="filter-btn filter-priority" onclick="setFilter('priority','high',this)">High</button>
+      <button class="filter-btn filter-priority" onclick="setFilter('priority','medium',this)">Medium</button>
+      <button class="filter-btn filter-priority" onclick="setFilter('priority','low',this)">Low</button>
+    </div>
+
+    <!-- ── 5. TODO LIST ──────────────────────────────
+         Empty div — renderTodos() in dashboard.js fills this
+         with HTML strings for each todo card.
+         listDiv.innerHTML = allTodos.map(...).join('')
+    ──────────────────────────────────────────────── -->
+    <div id="todo-list">
+      <!-- Todo cards rendered here by JavaScript -->
+    </div>
+
+  </div><!-- end .container -->
+
+
+  <!-- ── 6. EDIT MODAL ──────────────────────────────
+       Hidden popup that slides in when user clicks "Edit".
+
+       HOW IT SHOWS/HIDES:
+         Show → document.getElementById('edit-modal').classList.add('open')
+         Hide → document.getElementById('edit-modal').classList.remove('open')
+
+       In CSS:
+         .modal-overlay        { display: none }     ← hidden by default
+         .modal-overlay.open   { display: flex }     ← visible when .open class is added
+  ──────────────────────────────────────────────── -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal-box">
+
+      <h3>✏️ Edit Todo</h3>
+
+      <!-- JS pre-fills these with current todo values in openEditModal() -->
+      <input type="text" id="edit-title"    placeholder="Title *" />
+      <input type="text" id="edit-desc"     placeholder="Description" />
+
+      <!-- Dropdowns so user can change status and priority -->
+      <select id="edit-status">
+        <option value="pending">Pending</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+
+      <select id="edit-priority">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+
+      <div class="modal-btns">
+        <!-- closeEditModal() removes the 'open' class → hides modal -->
+        <button class="btn-gray" onclick="closeEditModal()">Cancel</button>
+        <!-- saveEdit() reads all fields and calls PUT /api/todos/:id -->
+        <button class="btn-blue" onclick="saveEdit()">Save</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast notification — shown briefly by showToast() in api.js -->
+  <div id="toast"></div>
+
+  <!-- api.js MUST come before dashboard.js -->
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

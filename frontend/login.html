@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!--
+  login.html — Login & Register page
+
+  HOW IT WORKS:
+    - By default shows the LOGIN form
+    - Clicking "New here? Register" shows the REGISTER form
+      (toggleMode() in login.js hides/shows the name field)
+    - On submit → handleSubmit() in login.js sends data to backend
+    - On success → saves token to localStorage → redirects to dashboard/admin
+    
+  JS FILES LOADED:
+    api.js   → fetch helpers, guardAuth, showToast etc.
+    login.js → toggleMode(), handleSubmit()
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo App – Login</title>
+
+  <!-- Only ONE css file for the whole app -->
+  <link rel="stylesheet" href="css/global.css" />
+</head>
+<body>
+
+  <!-- Full-screen centered wrapper (styled by .auth-page in global.css) -->
+  <div class="auth-page">
+    <div class="auth-card">
+
+      <!-- Title — JS changes this text when toggling between login/register -->
+      <h2 id="auth-title">✅ Todo App</h2>
+
+      <!-- Name field: hidden in login mode, visible in register mode -->
+      <!-- JS does: document.getElementById('name-field').style.display = 'block' -->
+      <div id="name-field" style="display:none">
+        <input type="text" id="auth-name" placeholder="Full Name" />
+      </div>
+
+      <!-- These two fields are always shown -->
+      <input type="email"    id="auth-email"    placeholder="Email" />
+      <input type="password" id="auth-password" placeholder="Password (min 6 chars)" />
+
+      <!-- Error or success message shown here by showMsg() in api.js -->
+      <div id="auth-msg"></div>
+
+      <!-- Calls handleSubmit() in login.js -->
+      <button class="btn-blue btn-full" onclick="handleSubmit()">Submit</button>
+
+      <!-- Clicking this calls toggleMode() in login.js to switch between login/register -->
+      <p id="auth-switch" class="auth-switch" onclick="toggleMode()">
+        New here? Register
+      </p>
+
+    </div>
+  </div>
+
+  <!-- Toast popup (hidden by default, shown by showToast() in api.js) -->
+  <div id="toast"></div>
+
+  <!-- IMPORTANT: api.js must load BEFORE login.js -->
+  <!-- Because login.js calls functions defined in api.js -->
+  <script src="js/api.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>
