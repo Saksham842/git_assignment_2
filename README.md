@@ -23,12 +23,11 @@ todo-app/
 │   │   └── todos.js          ← GET/POST/PUT/DELETE /api/todos + GET /api/todos/all
 │   │
 │   └── middleware/
-│       └── auth.js           ← verifyToken + adminOnly (security guards for routes)
+│       └── auth.js           ← verifyToken (security guard for routes)
 │
 └── frontend/                 ← Plain HTML/CSS/JS (no framework needed)
     ├── login.html            ← Login + Register page
     ├── dashboard.html        ← User todo management page
-    ├── admin.html            ← Admin overview page
     │
     ├── css/
     │   ├── global.css        ← Shared: reset, buttons, inputs, nav, badges, toast, modal
@@ -40,7 +39,6 @@ todo-app/
         ├── api.js            ← SHARED: all fetch() calls + auth helpers + toast
         ├── login.js          ← Toggle login/register + handle submit
         ├── dashboard.js      ← Load/add/edit/delete/filter todos + render
-        └── admin.js          ← Load all todos + render stats + render table
 ```
 
 ---
@@ -60,25 +58,17 @@ STEP 5: Backend routes/auth.js handles it:
          - Find user by email
          - Compare password with stored hash (bcrypt)
          - If match → create JWT token (jsonwebtoken)
-         - Send back: { token, user: { id, name, email, role } }
+         - Send back: { token, user: { id, name, email } }
    ↓
 STEP 6: login.js receives token → saves to localStorage
    ↓
-STEP 7: Check role:
-         role = 'admin' → go to admin.html
-         role = 'user'  → go to dashboard.html
+STEP 7: login.js redirects to dashboard.html
    ↓
-STEP 8 (user): dashboard.js loads
+STEP 8: dashboard.js loads
          - window.onload calls guardAuth() → check token exists
          - calls loadTodos() → fetch('/api/todos') with token in header
          - Backend verifyToken middleware checks token → allows if valid
          - Returns this user's todos → renderStats() + renderTodos()
-   ↓
-STEP 8 (admin): admin.js loads
-         - window.onload calls guardAdmin() → check role = 'admin'
-         - calls loadAllTodos() → fetch('/api/todos/all') with token
-         - Backend verifyToken + adminOnly both pass → returns ALL todos
-         - renderAdminStats() + renderAdminTable()
    ↓
 STEP 9: Logout
          - logout() in api.js → localStorage.clear() → back to login.html
@@ -91,7 +81,7 @@ STEP 9: Logout
 ### 1. JWT (JSON Web Token) — The Stamp
 
 ```
-Login → Server creates a STAMP (token) containing { id, role }
+Login → Server creates a STAMP (token) containing { id }
 User saves stamp in localStorage
 Every API call sends: Authorization: Bearer <stamp>
 Server reads stamp → knows WHO is making the request
@@ -118,11 +108,6 @@ router.get('/todos', verifyToken, handler)
 //                   ^^^^^^^^^^^
 //                   runs BEFORE handler
 //                   blocks if no valid token
-
-router.get('/all', verifyToken, adminOnly, handler)
-//                              ^^^^^^^^^
-//                              runs AFTER verifyToken
-//                              blocks if role ≠ 'admin'
 ```
 
 ### 4. Mongoose .populate() — Fill in Related Data
@@ -160,8 +145,7 @@ fetch('http://localhost:5000/api/todos', {
 | GET | `/api/todos?priority=high` | User | Filter by priority |
 | POST | `/api/todos` | User | Create new todo |
 | PUT | `/api/todos/:id` | User (owner) | Update a todo |
-| DELETE | `/api/todos/:id` | User (owner) | Delete a todo |
-| GET | `/api/todos/all` | Admin only | Get ALL users' todos |
+| DELETE | `/api/todos/:id` | User | Delete a todo |
 
 ---
 
@@ -189,26 +173,13 @@ OR just double-click `login.html` to open in browser.
 
 ---
 
-## 👤 How to Make Yourself an Admin
 
-1. Register a new account on login.html
-2. Open **MongoDB Compass**
-3. Go to `tododb` database → `users` collection
-4. Find your user document
-5. Change `role: "user"` → `role: "admin"`
-6. Click Save
-7. Log in again → you'll go to admin.html
-
----
 
 ## 📁 Which CSS File Does What
 
 | File | Loaded by | Styles |
 |------|-----------|--------|
-| `global.css` | All 3 HTML files | Reset, inputs, buttons, nav, badges, toast, modal |
-| `login.css` | login.html only | Centers the white auth card |
-| `dashboard.css` | dashboard.html only | Stats, form, filter buttons, todo cards |
-| `admin.css` | admin.html only | Purple navbar, table, 3-box stats |
+| `global.css` | All HTML files | All styles for the application |
 
 ---
 
@@ -216,10 +187,9 @@ OR just double-click `login.html` to open in browser.
 
 | File | Loaded by | Responsibility |
 |------|-----------|---------------|
-| `api.js` | All 3 HTML files | All fetch() calls, getHeaders(), showToast(), guardAuth(), guardAdmin(), logout() |
+| `api.js` | All HTML files | All fetch() calls, getHeaders(), showToast(), guardAuth(), logout() |
 | `login.js` | login.html only | Toggle mode, handle register/login form |
 | `dashboard.js` | dashboard.html only | Load/render todos, add, edit, delete, filter, stats |
-| `admin.js` | admin.html only | Load all todos, render stats, render table |
 
 ---
 

@@ -38,13 +38,6 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true
-    },
-
-    // role field: only 2 allowed values
-    role: {
-      type: String,
-      enum: ['user', 'admin'],  // enum = only these exact values allowed
-      default: 'user'           // if not provided, default is 'user'
     }
   },
 

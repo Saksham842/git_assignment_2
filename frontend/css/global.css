@@ -2,9 +2,9 @@
    css/global.css  —  THE ONLY CSS FILE IN THE APP
 
    WHY ONE FILE?
-     All 3 pages (login, dashboard, admin) share many
+     Both pages (login, dashboard) share many
      styles (buttons, inputs, badges, toast, modal).
-     Instead of 4 separate files, we put everything here.
+     Instead of separate files, we put everything here.
      Each HTML page loads just this one file.
 
    STRUCTURE:
@@ -22,9 +22,7 @@
     12. Empty state
     13. Toast notification
     14. Modal (edit popup)
-    15. Admin table
-    16. Admin stats
-    17. Auth (login/register) page
+    15. Auth (login/register) page
    ══════════════════════════════════════════════════ */
 
 /* ── 1. RESET ────────────────────────────────────
@@ -279,34 +277,7 @@ nav h2 { font-size: 1rem; }
   justify-content: flex-end; /* push buttons to the right */
 }
 
-/* ── 15. ADMIN TABLE ─────────────────────────────
-    Full-width table on admin.html */
-table {
-  width: 100%;
-  border-collapse: collapse; /* removes gaps between cells */
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-/* Header row */
-thead tr { background: #1d4ed8; color: white; }
-th { padding: 10px 12px; text-align: left; font-size: 13px; }
-
-/* Data cells */
-td { padding: 9px 12px; font-size: 13px; border-bottom: 1px solid #eee; }
-
-/* ── 16. ADMIN STATS (3 boxes) ───────────────────
-    Same .stat-box style but 3 columns instead of 4 */
-.admin-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-/* ── 17. AUTH PAGE (login/register) ─────────────
+/* ── 15. AUTH PAGE (login/register) ─────────────
     Full-screen centered layout for login.html */
 .auth-page {
   display: flex;

@@ -8,7 +8,6 @@
 //   POST   /api/todos        → create a new todo
 //   PUT    /api/todos/:id    → update a todo (title, status, priority...)
 //   DELETE /api/todos/:id    → delete a todo
-//   GET    /api/todos/all    → ADMIN: get ALL todos from every user
 //
 // KEY PATTERN: every route uses verifyToken middleware
 //   → means you must be logged in to use any of these
@@ -17,43 +16,10 @@
 const router = require('express').Router();
 const Todo = require('../models/Todo');
 
-// Import both middleware functions we made
-const { verifyToken, adminOnly } = require('../middleware/auth');
+// Import middleware
+const { verifyToken } = require('../middleware/auth');
 
-// ════════════════════════════════════════════════
-// IMPORTANT — ORDER MATTERS!
-// GET /api/todos/all  must be defined BEFORE
-// GET /api/todos/:id  otherwise Express reads
-// "all" as an :id value and things break!
-// ════════════════════════════════════════════════
 
-// ────────────────────────────────────────────────
-// ROUTE A: GET /api/todos/all   (ADMIN ONLY)
-// Returns every todo from every user
-// Used in admin.html to see the full overview
-// ────────────────────────────────────────────────
-router.get('/all', verifyToken, adminOnly, async (req, res) => {
-  // verifyToken runs → adminOnly runs → then this function runs
-  // Both middleware must pass, otherwise this never executes
-  try {
-    // Todo.find() with NO filter = get every document in the todos collection
-    const todos = await Todo.find()
-      // .populate('userId', 'name email')
-      //   populate = "replace the userId ObjectId with the actual User data"
-      //   'name email' = only include these fields from the User document
-      //   Without populate: { userId: "507f1f...", title: "Do dishes" }
-      //   With populate:    { userId: { name: "Anurag", email: "a@a.com" }, title: "Do dishes" }
-      .populate('userId', 'name email')
-      // .sort({ createdAt: -1 }) = newest todos first
-      // -1 = descending order (latest first)
-      //  1 = ascending order (oldest first)
-      .sort({ createdAt: -1 });
-
-    res.json(todos); // send the array of todos as JSON
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // ────────────────────────────────────────────────
 // ROUTE 1: GET /api/todos

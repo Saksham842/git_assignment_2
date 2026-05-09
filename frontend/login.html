@@ -7,11 +7,11 @@
     - Clicking "New here? Register" shows the REGISTER form
       (toggleMode() in login.js hides/shows the name field)
     - On submit → handleSubmit() in login.js sends data to backend
-    - On success → saves token to localStorage → redirects to dashboard/admin
+    - On success → saves token to localStorage → redirects to dashboard
     
   JS FILES LOADED:
     api.js   → fetch helpers, guardAuth, showToast etc.
-    login.js → toggleMode(), handleSubmit()
+    login.js → toggleMode(), handleAuth()
 -->
 <html lang="en">
 <head>
@@ -44,8 +44,8 @@
       <!-- Error or success message shown here by showMsg() in api.js -->
       <div id="auth-msg"></div>
 
-      <!-- Calls handleSubmit() in login.js -->
-      <button class="btn-blue btn-full" onclick="handleSubmit()">Submit</button>
+      <!-- Calls handleAuth() in login.js -->
+      <button class="btn-blue btn-full" onclick="handleAuth()">Submit</button>
 
       <!-- Clicking this calls toggleMode() in login.js to switch between login/register -->
       <p id="auth-switch" class="auth-switch" onclick="toggleMode()">

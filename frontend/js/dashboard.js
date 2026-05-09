@@ -55,20 +55,20 @@ window.onload = () => {
 // STEP 2: LOAD TODOS
 // Fetches ALL todos from server so stats are accurate
 // ════════════════════════════════════════════════
-async function loadTodos() {
+const loadTodos = async () => {
   // Fetch ALL todos (no filters passed to backend)
   allTodos = await apiGetTodos('', '');
 
   // Refresh both the stats and the todo list on screen
   renderStats();
   renderTodos();
-}
+};
 
 // ════════════════════════════════════════════════
 // STEP 3: RENDER STATS
 // Shows 4 count boxes at the top of the page
 // ════════════════════════════════════════════════
-function renderStats() {
+const renderStats = () => {
   // .filter() = returns a new array with only items matching the condition
   const total      = allTodos.length;
   const pending    = allTodos.filter(t => t.status === 'pending').length;
@@ -80,14 +80,14 @@ function renderStats() {
   document.getElementById('stat-pending').textContent  = pending;
   document.getElementById('stat-progress').textContent = inProgress;
   document.getElementById('stat-done').textContent     = completed;
-}
+};
 
 // ════════════════════════════════════════════════
 // STEP 4: RENDER TODOS
 // Builds HTML for each todo and puts it on the page
 // Filters the list locally based on currentFilter
 // ════════════════════════════════════════════════
-function renderTodos() {
+const renderTodos = () => {
   const listDiv = document.getElementById('todo-list');
 
   // ── 1. Apply active filters ──
@@ -145,13 +145,13 @@ function renderTodos() {
       </div>
     `;
   }).join(''); // join array of strings into one string
-}
+};
 
 // ════════════════════════════════════════════════
 // ADD TODO
 // Called when user clicks "Add Todo" button
 // ════════════════════════════════════════════════
-async function addTodo() {
+const addTodo = async () => {
   const title       = document.getElementById('new-title').value.trim();
   const description = document.getElementById('new-desc').value.trim();
   const priority    = document.getElementById('new-priority').value;
@@ -175,13 +175,13 @@ async function addTodo() {
 
   showToast('Todo added! ✅');
   loadTodos(); // refresh list
-}
+};
 
 // ════════════════════════════════════════════════
 // MARK AS DONE
 // Quickly sets status to 'completed'
 // ════════════════════════════════════════════════
-async function markDone(id) {
+const markDone = async (id) => {
   // Only update the status field
   const { ok, data } = await apiUpdateTodo(id, { status: 'completed' });
 
@@ -192,12 +192,12 @@ async function markDone(id) {
 
   showToast('Marked as completed! 🎉');
   loadTodos();
-}
+};
 
 // ════════════════════════════════════════════════
 // DELETE TODO
 // ════════════════════════════════════════════════
-async function deleteTodo(id) {
+const deleteTodo = async (id) => {
   // window.confirm() shows a browser popup "Are you sure?"
   // Returns true if user clicks OK, false if Cancel
   if (!window.confirm('Delete this todo? This cannot be undone.')) {
@@ -213,7 +213,7 @@ async function deleteTodo(id) {
 
   showToast('Deleted!');
   loadTodos();
-}
+};
 
 // ════════════════════════════════════════════════
 // EDIT MODAL
@@ -221,7 +221,7 @@ async function deleteTodo(id) {
 
 // ── Open edit modal ──
 // Called when user clicks "Edit" on a todo card
-function openEditModal(id) {
+const openEditModal = (id) => {
   // Find the todo in our allTodos array
   // .find() = returns the FIRST item matching the condition
   const todo = allTodos.find(t => t._id === id);
@@ -239,18 +239,18 @@ function openEditModal(id) {
   // Show the modal by adding the "open" class
   // In CSS: .modal-overlay.open { display: flex; }
   document.getElementById('edit-modal').classList.add('open');
-}
+};
 
 // ── Close edit modal ──
-function closeEditModal() {
+const closeEditModal = () => {
   editingTodoId = null; // clear the editing state
   document.getElementById('edit-modal').classList.remove('open');
   // Removing 'open' class → CSS hides the modal again
-}
+};
 
 // ── Save edited todo ──
 // Called when user clicks "Save" in the modal
-async function saveEdit() {
+const saveEdit = async () => {
   const title       = document.getElementById('edit-title').value.trim();
   const description = document.getElementById('edit-desc').value.trim();
   const status      = document.getElementById('edit-status').value;
@@ -276,7 +276,7 @@ async function saveEdit() {
   showToast('Todo updated! ✏️');
   closeEditModal();
   loadTodos();
-}
+};
 
 // ════════════════════════════════════════════════
 // FILTER TODOS
@@ -285,7 +285,7 @@ async function saveEdit() {
 // value = e.g. 'pending', 'high'
 // btn   = the button element that was clicked
 // ════════════════════════════════════════════════
-function setFilter(type, value, btn) {
+const setFilter = (type, value, btn) => {
   // Toggle: if same filter clicked again → clear it
   if (currentFilter[type] === value) {
     currentFilter[type] = ''; // clear this filter
@@ -307,4 +307,4 @@ function setFilter(type, value, btn) {
 
   // Just re-render the list locally (don't fetch from server again)
   renderTodos();
-}
+};

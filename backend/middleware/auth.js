@@ -52,9 +52,9 @@ const verifyToken = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Attach decoded user info to the request object
-    // So any route after this middleware can do: req.user.id, req.user.role
+    // So any route after this middleware can do: req.user.id
     req.user = decoded;
-    // decoded looks like: { id: "abc123", role: "user", iat: 1234, exp: 5678 }
+    // decoded looks like: { id: "abc123", iat: 1234, exp: 5678 }
     // iat = issued at (when token was created)
     // exp = expiry time
 
@@ -67,19 +67,5 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// ────────────────────────────────────────────────
-// MIDDLEWARE 2: adminOnly
-// Runs AFTER verifyToken.
-// Checks if the logged-in user is an admin.
-// ────────────────────────────────────────────────
-const adminOnly = (req, res, next) => {
-  // req.user was set by verifyToken above
-  if (req.user.role !== 'admin') {
-    // 403 = Forbidden (you're logged in but not allowed)
-    return res.status(403).json({ error: 'Admins only. Access denied.' });
-  }
-  next(); // user is admin, allow through
-};
-
-// Export both so routes can use them
-module.exports = { verifyToken, adminOnly };
+// Export so routes can use it
+module.exports = { verifyToken };

@@ -80,7 +80,6 @@ router.post('/register', async (req, res) => {
       name,
       email,
       password: hashedPassword, // store the HASH, never the plain password
-      // role defaults to 'user' as set in the schema
     });
 
     // ── STEP 5: Send success response ──
@@ -103,7 +102,7 @@ router.post('/register', async (req, res) => {
 //   { email: "a@a.com", password: "123456" }
 //
 // Response:
-//   { token: "eyJ...", user: { id, name, email, role } }
+//   { token: "eyJ...", user: { id, name, email } }
 // ════════════════════════════════════════════════
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
@@ -138,7 +137,7 @@ router.post('/login', async (req, res) => {
     //   secretKey = used to sign; anyone with this key can verify the token
     //   options   = { expiresIn: '1d' } = token expires after 1 day
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user._id },
       // _id = MongoDB auto-generated unique ID for this user
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
@@ -152,8 +151,7 @@ router.post('/login', async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email,
-        role: user.role    // frontend uses role to redirect to admin.html or dashboard.html
+        email: user.email
       }
     });
 
