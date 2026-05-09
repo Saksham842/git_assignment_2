@@ -1,0 +1,66 @@
+/* ─────────────────────────────────────────────
+   index.css — Global Styles
+   
+   This file applies to the entire app.
+   We keep it very simple: just reset browser
+   defaults and set a clean base style.
+───────────────────────────────────────────── */
+
+/* Reset: browsers add weird default margins/paddings — this removes them */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* padding doesn't add to element width */
+}
+
+/* Base body style */
+body {
+  font-family: Arial, sans-serif; /* clean readable font */
+  background-color: #f0f2f5;      /* light gray background */
+  color: #333;                    /* dark gray text */
+}
+
+/* ── Shared Button Style ── */
+button {
+  cursor: pointer; /* shows hand cursor on hover */
+}
+
+/* ── Shared Input Style ── */
+input, textarea {
+  font-family: inherit; /* use same font as body */
+}
+
+/* ── Utility: error text ── */
+.error-msg {
+  color: red;
+  font-size: 14px;
+  margin: 6px 0;
+}
+
+/* ── Utility: success text ── */
+.success-msg {
+  background: #d4edda;
+  color: green;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+/* ── Table shared styles ── */
+table {
+  width: 100%;
+  border-collapse: collapse; /* removes gaps between table cells */
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th {
+  padding: 12px;
+  text-align: left;
+}
+
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee; /* light line between rows */
+}
